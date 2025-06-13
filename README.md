@@ -112,8 +112,8 @@ python create_new_character.py
 
 
 
-
-    graph TD
+```graph TD
+    
     subgraph On-Demand Character Creation (Run as needed)
     direction LR
     AA[Showrunner decides to add a new character] --> BB(Run `create_new_character.py`);
@@ -152,6 +152,7 @@ python create_new_character.py
     L -- Episode Summary --> C;
     M --> N[End];
     end
+```
 
 
 
