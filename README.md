@@ -119,7 +119,7 @@ python create_new_character.py
         AA[Showrunner decides to add a new character] --> BB(Run `create_new_character.py`);
         BB -- Generates Character Sheet --> CC{Human-in-the-Loop};
         CC -- Approves & Adds to config.py --> DD[config.py - Series Bible];
-    end
+        end
 
     subgraph Daily Production Loop (Scheduled)
         direction TD
@@ -128,6 +128,7 @@ python create_new_character.py
         B -- Reads --> DD;
         C -- Past Context --> B;
         DD -- Character & Story Info --> B;
+        end
         
         B -- Episode Plot --> D(Script Writer Agent);
         D -- Reads --> DD;
@@ -139,7 +140,7 @@ python create_new_character.py
         E --> G[Production Agent: Audio];
         E --> H[Production Agent: Music];
         E --> I[Production Agent: SFX];
-    end
+        end
 
     F -- Visual Assets --> J;
     G -- Voiceovers --> J;
