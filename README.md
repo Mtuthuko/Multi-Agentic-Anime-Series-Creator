@@ -49,7 +49,7 @@ Once a character is added to `config.py`, they become a permanent part of the se
 
 ### 1. Clone the Repository
 
-```bash
+bash
 git clone <your-repo-url>
 cd anime_creator
 IGNORE_WHEN_COPYING_START
@@ -65,7 +65,7 @@ IGNORE_WHEN_COPYING_START
 content_copy
 download
 Use code with caution.
-Bash
+bash
 IGNORE_WHEN_COPYING_END
 3. Install Dependencies
 pip install -r requirements.txt
