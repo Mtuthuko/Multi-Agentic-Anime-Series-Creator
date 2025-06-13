@@ -49,43 +49,32 @@ Once a character is added to `config.py`, they become a permanent part of the se
 
 ### 1. Clone the Repository
 
-bash
+```bash
 git clone <your-repo-url>
 cd anime_creator
-IGNORE_WHEN_COPYING_START
-content_copy
-download
-Use code with caution.
-Markdown
-IGNORE_WHEN_COPYING_END
-2. Create a Virtual Environment
+```
+
+### 2. Create a Virtual Environment
+```bash
 python -m venv venv
 source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
-IGNORE_WHEN_COPYING_START
-content_copy
-download
-Use code with caution.
-bash
-IGNORE_WHEN_COPYING_END
-3. Install Dependencies
+```
+
+
+
+4. Install Dependencies
+```bash
 pip install -r requirements.txt
-IGNORE_WHEN_COPYING_START
-content_copy
-download
-Use code with caution.
-Bash
-IGNORE_WHEN_COPYING_END
-4. Environment Variables
+```
+
+5. Environment Variables
 
 Create a .env file in the root directory and add your Google API Key:
 
+```bash
 # .env file
 GOOGLE_API_KEY="your_google_api_key_here"
-IGNORE_WHEN_COPYING_START
-content_copy
-download
-Use code with caution.
-IGNORE_WHEN_COPYING_END
+```
 5. YouTube API Setup (Crucial!)
 
 To upload videos, you need to enable the YouTube Data API v3.
@@ -106,14 +95,10 @@ How to Run
 Daily Episode Production
 
 To start the daily production cycle, run the main script:
-
+```bash
 python main.py
-IGNORE_WHEN_COPYING_START
-content_copy
-download
-Use code with caution.
-Bash
-IGNORE_WHEN_COPYING_END
+```
+
 
 The system is configured to run once immediately for testing. You can uncomment the schedule lines in main.py to have it run automatically every day.
 
@@ -121,37 +106,9 @@ Creating a New Character
 
 When you need to introduce a new character to the story:
 
+```bash
 python create_new_character.py
-IGNORE_WHEN_COPYING_START
-content_copy
-download
-Use code with caution.
-Bash
-IGNORE_WHEN_COPYING_END
+```
 
-Follow the on-screen prompts. After the character sheet is generated, you must manually add it to config.py.
 
-Project Structure
-anime_creator/
-├── agents/         # Agent definitions (story, production, character, etc.)
-├── core/           # Core resources (LLM and Tool instances)
-├── tasks/          # Task definitions for the agents
-├── tools/          # Function-calling tools for agents
-├── utils/          # Helper utilities (memory, file handling)
-├── .env            # Environment variables
-├── config.py       # The "Series Bible" - static story and character data
-├── main.py         # Main execution script for daily production
-├── create_new_character.py # Utility script for adding new characters
-├── requirements.txt
-├── README.md       # This file
-└── flow_diagram.md # The architecture diagram
-IGNORE_WHEN_COPYING_START
-content_copy
-download
-Use code with caution.
-IGNORE_WHEN_COPYING_END
-IGNORE_WHEN_COPYING_START
-content_copy
-download
-Use code with caution.
-IGNORE_WHEN_COPYING_END
+
