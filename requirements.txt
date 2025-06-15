@@ -13,3 +13,4 @@ google-genai
 langchain-google-vertexai
 replicate
 elevenlabs
+gradio_client

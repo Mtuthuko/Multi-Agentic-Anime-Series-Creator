@@ -6,7 +6,16 @@ from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
+from pydantic import BaseModel, Field
 
+
+# --- ADD A SCHEMA ---
+class YouTubeUploaderToolSchema(BaseModel):
+    """Input schema for YouTubeUploaderTool."""
+    file_path: str = Field(..., description="The path to the video file to be uploaded.")
+    title: str = Field(..., description="The title of the YouTube video.")
+    description: str = Field(..., description="The description for the YouTube video.")
+    
 class YouTubeUploaderTool(BaseTool):
     name: str = "YouTube Uploader Tool"
     description: str = "Uploads a video file to YouTube with a title and description. Input is a JSON object with 'file_path', 'title', and 'description'."
@@ -25,16 +34,8 @@ class YouTubeUploaderTool(BaseTool):
                 token.write(creds.to_json())
         return creds
 
-    def _run(self, upload_data_json: str) -> str:
-        import json
-        try:
-            upload_data = json.loads(upload_data_json)
-            file_path = upload_data['file_path']
-            title = upload_data['title']
-            description = upload_data['description']
-        except (json.JSONDecodeError, KeyError) as e:
-            return f"Error: Invalid JSON input for upload. {e}"
-
+    # --- UPDATE THE _run METHOD ---
+    def _run(self, file_path: str, title: str, description: str) -> str:
         if not os.path.exists(file_path):
             return f"Error: Video file not found at {file_path}"
         
@@ -49,10 +50,7 @@ class YouTubeUploaderTool(BaseTool):
                     "tags": ["AI", "Anime", "Mtuthuko", "CrewAI", "GenerativeAI"],
                     "categoryId": "1" # 1 is Film & Animation
                 },
-                "status": {
-                    "privacyStatus": "public",  # or 'private'/'unlisted'
-                    "selfDeclaredMadeForKids": False
-                }
+                "status": {"privacyStatus": "public"}
             }
             
             media = MediaFileUpload(file_path, chunksize=-1, resumable=True)

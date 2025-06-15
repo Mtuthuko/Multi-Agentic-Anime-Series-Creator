@@ -1,15 +1,17 @@
 # agents/story_agents.py
 from crewai import Agent
 from core.resources import llm, memory_tool
-from config import SERIES_TITLE
+from config import SERIES_TITLE, INITIAL_STORY_PROMPT
 
 storyline_agent = Agent(
     role='Chief Storyline Officer',
-    goal=f'Develop a compelling and continuous storyline for each new episode of the anime series "{SERIES_TITLE}", ensuring it logically follows from previous episodes.',
+    goal=f'Develop a compelling and continuous storyline for each new episode of the anime series "{SERIES_TITLE}", ensuring it logically follows from previous episodes AND the core premise.',
     backstory=(
         f'You are a master storyteller for the anime series "{SERIES_TITLE}". '
-        'Your job is to remember everything that has happened and craft the next chapter in Mtuthuko\'s life, '
-        'focusing on his struggles, growth, and emotions. You use the series memory to maintain continuity.'
+        'Your SOLE FOCUS is the story of Mtuthuko as described in the initial premise. '
+        'You MUST NOT deviate from this core story of a boy from a township overcoming hardship through education. '
+        f'The initial premise is: {INITIAL_STORY_PROMPT}. '
+        'Your job is to write the NEXT chapter of THIS specific story.'
     ),
     tools=[memory_tool],
     llm=llm,
