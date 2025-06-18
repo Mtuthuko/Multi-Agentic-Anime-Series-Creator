@@ -21,6 +21,7 @@ The system operates like a digital production studio, with each agent passing it
 
 ```mermaid
 graph TD
+
     subgraph "Phase 1: Pre-Production"
         A[Start Daily Job] --> B(Storyline Agent);
         B -- Queries --> C[Vector DB Memory];
@@ -49,7 +50,7 @@ graph TD
             H -- Music Prompt --> N(Music Tool);
             L & M & N --> K;
         end
-    end
+   
 
     subgraph "Phase 3: Post-Production & Distribution"
         O(Editor Agent) -- Gathers all assets from --> K;
@@ -61,6 +62,8 @@ graph TD
     
     A --> E;
     E --> O;
+
+ end
 ```
 
 ### 🛠️ The AI Stack
