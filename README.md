@@ -1,7 +1,6 @@
 
 # Multi-Agentic Anime Series Creator
 
-```markdown
 
 Welcome to the AI Anime Series Creator, a fully autonomous multi-agentic system designed to create, produce, and distribute a new episode of an anime series every single day. This project leverages the power of the `crewAI` framework to orchestrate a team of specialized AI agents, each responsible for a part of the creative pipeline, from writing the story to compiling the final video and uploading it to YouTube.
 
@@ -164,4 +163,4 @@ anime_creator/
 ├── requirements.txt # Project dependencies
 └── README.md       # This file
 ```
-```
+
