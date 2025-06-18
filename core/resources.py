@@ -4,18 +4,15 @@ from langchain_google_vertexai import ChatVertexAI
 
 # --- IMPORTS FOR THE KEN BURNS ARCHITECTURE ---
 # core/resources.py
-import os
-from langchain_google_genai import ChatGoogleGenerativeAI
-
-# Import all tools
 from tools.memory_tool import MemoryReaderTool, MemoryWriterTool
-# from tools.local_image_tool import LocalImageGeneratorTool
+# CORRECTED IMPORTS: We are importing the two separate tools, not the LTX tool.
 from tools.huggingface_tools import HuggingFaceImageGeneratorTool, HuggingFaceVideoGeneratorTool
-from tools.audio_tools import VoiceGeneratorTool, SfxGeneratorTool, MusicGeneratorTool
-from tools.post_production_tools import FaceAnimationTool
+# CORRECTED IMPORTS: We are importing the new HF music tool.
+from tools.audio_tools import VoiceGeneratorTool, SfxGeneratorTool, HuggingFaceMusicGeneratorTool
 from tools.compiler_tool import VideoCompilerTool
-from tools.youtube_tool import YouTubeUploaderTool # Assuming you still have youtube_tool.py from previous steps
+from tools.youtube_tool import YouTubeUploaderTool
 from utils.memory_manager import MemoryManager
+
 
 # --- Initialize the LLM ---
 llm = ChatVertexAI(
@@ -27,16 +24,15 @@ llm = ChatVertexAI(
 # Note: LocalImageGeneratorTool will download models on first run.
 print("Initializing tools...")
 memory_manager = MemoryManager(collection_name="mtuthuko_series_memory")
-# memory_tool = MemoryTool(memory_manager=memory_manager)
-memory_reader_tool = MemoryReaderTool(memory_manager=memory_manager) # <-- Name changed
+memory_reader_tool = MemoryReaderTool(memory_manager=memory_manager)
 memory_writer_tool = MemoryWriterTool(memory_manager=memory_manager)
-# local_image_tool = LocalImageGeneratorTool()
+
+# CORRECTED INSTANTIATION
 hf_image_tool = HuggingFaceImageGeneratorTool()
 hf_video_tool = HuggingFaceVideoGeneratorTool()
 voice_tool = VoiceGeneratorTool()
 sfx_tool = SfxGeneratorTool()
-music_tool = MusicGeneratorTool()
-# local_lip_sync_tool = FaceAnimationTool()
+hf_music_tool = HuggingFaceMusicGeneratorTool() # Using the new HF music tool
 compiler_tool = VideoCompilerTool()
 youtube_tool = YouTubeUploaderTool()
 print("All tools initialized.")

@@ -14,7 +14,7 @@ from agents.production_crew_agents import (
 )
 from tasks.episode_tasks import create_crew_tasks
 from utils.file_handler import setup_episode_directory
-from core.resources import youtube_tool, memory_writer_tool, llm
+from core.resources import youtube_tool, memory_writer_tool, memory_reader_tool, llm
 
 # --- State Management ---
 STATE_FILE = "series_state.txt"
@@ -46,13 +46,19 @@ def run_episode_creation_job():
         llm=llm,
         verbose=True
     )
+    storyline_agent.tools = [memory_reader_tool]
 
     tasks = create_crew_tasks(episode_id, episode_path, youtube_agent)
     
     anime_crew = Crew(
         agents=[
-            storyline_agent, script_writer_agent, production_planner,
-             audio_engineer, video_director, editor, youtube_agent
+            storyline_agent, 
+            script_writer_agent,
+            production_planner,
+            video_director, # The only visual agent needed now
+            audio_engineer,
+            editor,
+            youtube_agent
         ],
         tasks=tasks,
         process=Process.sequential,
