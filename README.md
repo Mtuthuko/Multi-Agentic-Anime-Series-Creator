@@ -149,7 +149,8 @@ To add a new character to the series "bible" (`config.py`), use the character cr
 python create_new_character.py
 ```
 Follow the prompts, and then manually copy the generated character sheet into the `CHARACTERS` dictionary in your `config.py` file.
-
+##Note:
+Some bugs in sfx  and video gen part need to find suitable free/OpenSource text-to-vid model to call via an API. 
 ## 📁 Project Structure
 
 ```
