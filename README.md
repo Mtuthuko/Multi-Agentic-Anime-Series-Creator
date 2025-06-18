@@ -1,114 +1,167 @@
 
 # Multi-Agentic Anime Series Creator
 
-This system uses the crewAI framework and Google's Gemini Pro models to autonomously create and upload a continuous anime series to a YouTube channel.
+```markdown
 
-## Overview
+Welcome to the AI Anime Series Creator, a fully autonomous multi-agentic system designed to create, produce, and distribute a new episode of an anime series every single day. This project leverages the power of the `crewAI` framework to orchestrate a team of specialized AI agents, each responsible for a part of the creative pipeline, from writing the story to compiling the final video and uploading it to YouTube.
 
-The system is built around a "crew" of specialized AI agents, each responsible for a specific part of the anime production pipeline. It follows a dual-process architecture:
-1.  A **Daily Production Loop** that autonomously creates and uploads a new 5-minute episode.
-2.  An **On-Demand Character Creation** utility to introduce new characters to the series.
+This system is built using a **free-tier-friendly, API-based architecture**. It uses open-source models for visual and music generation via the Hugging Face and Replicate APIs, ensuring high-quality results without requiring powerful local hardware or expensive initial costs.
 
-This structure ensures creative flexibility while maintaining strict narrative and visual consistency for the established cast.
+## 🌟 Features
 
-## Features
+- **Autonomous Daily Production**: Designed to be scheduled to run daily, creating a continuous animated series.
+- **Multi-Agent System**: Utilizes `crewAI` to manage a "digital studio" of agents for story, planning, visuals, audio, and distribution.
+- **Continuous Storyline**: Employs a vector database (`ChromaDB`) to maintain long-term memory, ensuring each new episode logically follows the last.
+- **API-Powered Generation**: All heavy computation (video, image, music, SFX) is offloaded to robust, free-tier APIs, making the system lightweight and runnable on standard hardware (like a MacBook).
+- **Text-to-Video Workflow**: Implements a sophisticated Image-to-Video pipeline using Stable Video Diffusion for dynamic scenes.
+- **Automated Distribution**: A dedicated agent handles the final upload to a specified YouTube channel.
 
-- **Autonomous Daily Production:** Runs on a schedule to create and upload a new 5-minute episode.
-- **Multi-Agent System:** Uses `crewAI` to orchestrate specialized agents for story, script, multimedia production, and distribution.
-- **Long-Term Memory:** Employs a ChromaDB vector store to remember past episodes, ensuring a coherent and continuous storyline.
-- **Static "Series Bible":** Uses a `config.py` file to store foundational information like character personalities and the core story premise, ensuring consistency.
-- **On-Demand Character Creation:** A separate script allows a "showrunner" to generate new characters, which can then be permanently added to the series bible.
-- **Automated YouTube Uploads:** An agent handles the entire process of uploading the final video to a specified YouTube channel.
+##  workflow
 
-## Architecture
+The system operates like a digital production studio, with each agent passing its work to the next in a sequential pipeline.
 
-The system's architecture is split into two distinct workflows:
+```mermaid
+graph TD
+    subgraph "Phase 1: Pre-Production"
+        A[Start Daily Job] --> B(Storyline Agent);
+        B -- Queries --> C[Vector DB Memory];
+        C -- Past Context --> B;
+        B -- Episode Plot --> D(Script Writer Agent);
+        D -- Final Script --> E(Production Planner Agent);
+    end
 
-### 1. Daily Production Loop (Automated)
+    subgraph "Phase 2: Asset Generation (API-driven)"
+        E -- JSON Production Plan --> F{Parallel Generation Tasks};
+        F -- Video Plan --> G[Video Director Agent];
+        F -- Audio Plan --> H[Audio Engineer Agent];
 
-This is the core pipeline that runs every day:
+        subgraph "Video Director's Two-Step Process"
+            direction LR
+            G1[1. Generate Image] -- Image Prompt --> I(Image Generator Tool);
+            I -- Still Image --> G2[2. Generate Video];
+            G2 -- Source Image --> J(Video Generator Tool);
+            J -- Video Clip --> K[Asset Folder];
+        end
+        
+        subgraph "Audio Engineer's Tasks"
+            direction LR
+            H -- Dialogue Text --> L(Voice Tool);
+            H -- SFX Prompt --> M(SFX Tool);
+            H -- Music Prompt --> N(Music Tool);
+            L & M & N --> K;
+        end
+    end
 
-1.  **Story Development:** The `StorylineAgent` queries the memory of past episodes and reads the `config.py` "Series Bible" to generate a plot for the new episode.
-2.  **Script Writing:** The `ScriptWriterAgent` takes the plot and writes a detailed script, including dialogue, actions, and emotional cues, referencing the character personalities from the config.
-3.  **Parallel Asset Generation:** The `ProductionAgent` generates all visual and audio assets based on the script. *(Note: This is currently simulated).*
-4.  **Post-Production:** The `CompilerAgent` stitches all generated assets (video, voice, music, SFX) into a single MP4 file.
-5.  **Distribution & Memory:** The `YouTubeUploaderAgent` uploads the final video and saves a summary of the episode back to the vector memory database for future context.
+    subgraph "Phase 3: Post-Production & Distribution"
+        O(Editor Agent) -- Gathers all assets from --> K;
+        O -- Compiles Assets --> P(Final Episode Video);
+        P --> Q(YouTube Agent);
+        Q -- Uploads Video --> R[YouTube Channel];
+        Q -- Writes Summary --> C;
+    end
+    
+    A --> E;
+    E --> O;
+```
 
-### 2. Character Management (On-Demand & Manual)
+### 🛠️ The AI Stack
 
-This process is used to expand the cast without disrupting the daily flow:
+- **Framework**: `crewAI`
+- **LLM**: Google `Gemini 1.5 Flash` (for agent reasoning)
+- **Image Generation**: `digiplay/AbsoluteReality_v1.8.1` via Hugging Face API
+- **Video Generation**: `stabilityai/stable-video-diffusion-img2vid-xt` via Hugging Face API
+- **Voice Generation**: Google Cloud Text-to-Speech API
+- **SFX Generation**: ElevenLabs SFX API
+- **Music Generation**: `facebook/musicgen-small` via Hugging Face API
+- **Memory**: `ChromaDB`
+- **Video Compilation**: `moviepy`
 
-1.  **Initiation:** The "showrunner" (you) decides a new character is needed.
-2.  **Execution:** You run the `create_new_character.py` script.
-3.  **Generation:** The `CharacterCreatorAgent` generates a detailed character sheet based on a simple concept provided by the showrunner.
-4.  **Integration (Human-in-the-Loop):** The showrunner reviews the generated character sheet and, if approved, manually copies the information into the `CHARACTERS` dictionary within the `config.py` file.
+## ⚙️ Setup Instructions
 
-Once a character is added to `config.py`, they become a permanent part of the series and are known to all agents in the daily production loop.
-
-## Setup
+Follow these steps to get your AI Anime Studio running.
 
 ### 1. Clone the Repository
-
 ```bash
 git clone <your-repo-url>
 cd anime_creator
 ```
 
-### 2. Create a Virtual Environment
+### 2. Create a Python Virtual Environment
+This is crucial to keep dependencies isolated.
 ```bash
-python -m venv venv
-source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
+python3 -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
 ```
 
-
-
-4. Install Dependencies
+### 3. Install Dependencies
+Install all the required Python libraries from the `requirements.txt` file.
 ```bash
 pip install -r requirements.txt
 ```
 
-5. Environment Variables
+### 4. Set Up API Keys
 
-Create a .env file in the root directory and add your Google API Key:
+You will need API keys from a few different services.
 
-```bash
-# .env file
-GOOGLE_API_KEY="your_google_api_key_here"
+1.  **Google Cloud**:
+    -   Enable the **"Generative Language API"** and **"Cloud Text-to-Speech API"**.
+    -   [Create an API Key](https://console.cloud.google.com/apis/credentials).
+2.  **Hugging Face**:
+    -   [Create an Access Token](https://huggingface.co/settings/tokens) with "write" permissions.
+3.  **ElevenLabs**:
+    -   Sign up and get your API Key from your [Profile Settings](https://elevenlabs.io/).
+
+Create a file named `.env` in the root of the project directory and add your keys like this:
+
 ```
-5. YouTube API Setup (Crucial!)
+# .env file
+GOOGLE_API_KEY="your_google_cloud_api_key_here"
+ELEVEN_LABS_API_KEY="your_elevenlabs_api_key_here"
+HUGGING_FACE_API_TOKEN="hf_...your_hugging_face_token_here"
+```
 
-To upload videos, you need to enable the YouTube Data API v3.
+### 5. Set Up YouTube API for Uploads
 
-Go to the Google Cloud Console.
+To allow the system to upload videos to your channel, you need to set up OAuth credentials.
 
-Create a new project.
+1.  Go to the [Google Cloud Console](https://console.cloud.google.com/).
+2.  In your project, go to "APIs & Services" and enable the **"YouTube Data API v3"**.
+3.  Go to "Credentials", click "+ CREATE CREDENTIALS", and select "OAuth 2.0 Client ID".
+4.  Choose "Desktop app" as the application type.
+5.  Download the JSON file. **Rename it to `client_secrets.json`** and place it in the root directory of your project.
 
-Enable the "YouTube Data API v3".
+**Important:** The very first time you run the script, it will open a browser window and ask you to log in with your Google account and grant permission. After you approve, it will create a `token.json` file. This token will be used automatically for all future uploads.
 
-Go to "Credentials", create an "OAuth 2.0 Client ID", and select "Desktop app".
+## 🚀 How to Run
 
-Download the JSON file. Rename it to client_secrets.json and place it in the root directory of your project.
-
-First Run: The first time the system attempts an upload, it will open a browser window asking you to authorize the application. After you grant permission, it will create a token.json file for all future automated uploads.
-
-How to Run
-Daily Episode Production
-
-To start the daily production cycle, run the main script:
+### Daily Episode Production
+To kick off the full production pipeline for a single episode, run the main script:
 ```bash
 python main.py
 ```
+**Note:** The first time you run any of the API-based tools, especially the video generator, there might be a delay as the models are loaded on the provider's servers. Subsequent runs are usually faster.
 
-
-The system is configured to run once immediately for testing. You can uncomment the schedule lines in main.py to have it run automatically every day.
-
-Creating a New Character
-
-When you need to introduce a new character to the story:
-
+### Creating a New Character
+To add a new character to the series "bible" (`config.py`), use the character creation utility:
 ```bash
 python create_new_character.py
 ```
+Follow the prompts, and then manually copy the generated character sheet into the `CHARACTERS` dictionary in your `config.py` file.
 
+## 📁 Project Structure
 
-
+```
+anime_creator/
+├── agents/         # Agent class definitions
+├── core/           # Core resources (LLM and Tool instances)
+├── tasks/          # Task definitions for the agents
+├── tools/          # All API and local tools
+├── utils/          # Helper utilities (memory, file handling)
+├── .env            # Your secret API keys
+├── config.py       # The "Series Bible" - static story/character data
+├── main.py         # Main script for daily production
+├── create_new_character.py # Utility for adding new characters
+├── requirements.txt # Project dependencies
+└── README.md       # This file
+```
+```
