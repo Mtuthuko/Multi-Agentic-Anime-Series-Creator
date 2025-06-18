@@ -4,7 +4,7 @@ SERIES_TITLE = "The Resilience of Mtuthuko"
 YOUTUBE_CHANNEL_ID = "YOUR_YOUTUBE_CHANNEL_ID" # Optional, for some API calls
 
 INITIAL_STORY_PROMPT = """
-The series is about a boy called Mtuthuko, age 16, from the township of KwaThema. 
+The series is about a boy called Mtuthuko, age 16, from the township of KwaThema, Springs, South Africa. 
 He, his mother Thokozile (38), his sister Thandeka (22), and her baby Amahle (2) were kicked out of their family home by his mother's uncles, Henry and Ernest, while his mother was gravely ill.
 
 They are forced to live in a two-bedroom shack infested with rats. This hardship fuels Mtuthuko's determination. He discovers his academic talent and focuses intensely on his education to change their circumstances.

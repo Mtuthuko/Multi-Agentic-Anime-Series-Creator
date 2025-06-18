@@ -1,6 +1,6 @@
 # agents/post_production_agents.py
 from crewai import Agent
-from core.resources import llm, compiler_tool, youtube_tool, memory_tool
+from core.resources import llm, compiler_tool, youtube_tool,  memory_reader_tool, memory_writer_tool
 
 compiler_agent = Agent(
     role='Post-Production Editor',
@@ -23,7 +23,7 @@ youtube_agent = Agent(
         'and, crucially, you ensure the system remembers what it created by logging a summary of the episode '
         'for future continuity.'
     ),
-    tools=[youtube_tool, memory_tool],
+    tools=[youtube_tool, memory_writer_tool],
     llm=llm,
     verbose=True
 )

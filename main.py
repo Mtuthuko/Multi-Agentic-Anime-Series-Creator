@@ -3,29 +3,21 @@ import os
 import schedule
 import time
 from dotenv import load_dotenv
-from crewai import Crew, Process
+from crewai import Agent, Crew, Process
 
-# Load environment variables
+# Load environment variables first
 load_dotenv()
 
-# Import ALL agents
 from agents.story_agents import storyline_agent, script_writer_agent
 from agents.production_crew_agents import (
-    audio_engineer, editor_agent # Change 'production_planner' to 'director_agent'
+    production_planner, image_artist, audio_engineer, face_animator, editor
 )
-from agents.production_crew_agents import (
-    production_planner, scene_compositor_agent, editor_agent
-)
-from agents.post_production_agents import youtube_agent
-from tasks.episode_tasks import create_crew_tasks
-from tasks.episode_tasks import create_crew_tasks
-# Import the task creation function
 from tasks.episode_tasks import create_crew_tasks
 from utils.file_handler import setup_episode_directory
+from core.resources import youtube_tool, memory_tool, llm
 
-# --- State Management (Unchanged) ---
+# --- State Management ---
 STATE_FILE = "series_state.txt"
-# ... (get_current_episode_id and save_next_episode_id functions remain the same) ...
 def get_current_episode_id():
     if not os.path.exists(STATE_FILE): return 1
     with open(STATE_FILE, "r") as f:
@@ -35,29 +27,32 @@ def get_current_episode_id():
 def save_next_episode_id(episode_id):
     with open(STATE_FILE, "w") as f: f.write(str(episode_id + 1))
 
-
 # --- Main Production Function ---
 def run_episode_creation_job():
-    print("🚀 Starting new episode creation job with full production crew...")
+    print("🚀 Starting Local Visuals episode creation job...")
     
     episode_id = get_current_episode_id()
     print(f"🎬 --- Creating Episode {episode_id} ---")
     
     episode_path = setup_episode_directory(episode_id)
-    os.makedirs("temp_assets", exist_ok=True) # Ensure temp asset dir exists
+    os.makedirs("temp_assets", exist_ok=True)
 
-    tasks = create_crew_tasks(episode_id, episode_path)
+    # Define YouTube Agent here for clarity
+    youtube_agent = Agent(
+        role='Digital Distribution Manager',
+        goal='Upload the final anime episode to YouTube and update the series memory.',
+        backstory='You handle the final step of bringing the series to the world and ensuring the system remembers its creation.',
+        tools=[youtube_tool, memory_tool],
+        llm=llm,
+        verbose=True
+    )
+
+    tasks = create_crew_tasks(episode_id, episode_path, youtube_agent)
     
-    # ASSEMBLE THE NEW CREW
     anime_crew = Crew(
         agents=[
-            storyline_agent, 
-            script_writer_agent,
-            production_planner, # Now it exists
-            scene_compositor_agent,
-            # audio_engineer,
-            editor_agent,
-            youtube_agent
+            storyline_agent, script_writer_agent, production_planner,
+            image_artist, audio_engineer, face_animator, editor, youtube_agent
         ],
         tasks=tasks,
         process=Process.sequential,
@@ -72,7 +67,7 @@ def run_episode_creation_job():
     save_next_episode_id(episode_id)
     print(f"📈 System state updated. Ready for next episode: {episode_id + 1}")
 
-# --- Scheduler (Unchanged) ---
 if __name__ == "__main__":
-    print("🌟 AI Anime Studio system is now RUNNING. 🌟")
+    print("🌟 AI Anime Studio (Local Visuals) system is now RUNNING. 🌟")
+    print("The first run will download several GB of models. Please be patient.")
     run_episode_creation_job()

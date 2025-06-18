@@ -1,6 +1,7 @@
 # tools/youtube_tool.py
 from crewai.tools import BaseTool
 import os
+import json
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
@@ -9,16 +10,17 @@ from googleapiclient.http import MediaFileUpload
 from pydantic import BaseModel, Field
 
 
-# --- ADD A SCHEMA ---
 class YouTubeUploaderToolSchema(BaseModel):
     """Input schema for YouTubeUploaderTool."""
-    file_path: str = Field(..., description="The path to the video file to be uploaded.")
+    file_path: str = Field(..., description="The path to the final video file to be uploaded.")
     title: str = Field(..., description="The title of the YouTube video.")
     description: str = Field(..., description="The description for the YouTube video.")
-    
+
+
 class YouTubeUploaderTool(BaseTool):
     name: str = "YouTube Uploader Tool"
-    description: str = "Uploads a video file to YouTube with a title and description. Input is a JSON object with 'file_path', 'title', and 'description'."
+    description: str = "Uploads a video file to YouTube with a title and description."
+    args_schema: type[BaseModel] = YouTubeUploaderToolSchema # 2. 
     
     def _get_credentials(self):
         creds = None
@@ -34,7 +36,6 @@ class YouTubeUploaderTool(BaseTool):
                 token.write(creds.to_json())
         return creds
 
-    # --- UPDATE THE _run METHOD ---
     def _run(self, file_path: str, title: str, description: str) -> str:
         if not os.path.exists(file_path):
             return f"Error: Video file not found at {file_path}"
@@ -42,30 +43,11 @@ class YouTubeUploaderTool(BaseTool):
         try:
             credentials = self._get_credentials()
             youtube = build("youtube", "v3", credentials=credentials)
-            
-            request_body = {
-                "snippet": {
-                    "title": title,
-                    "description": description,
-                    "tags": ["AI", "Anime", "Mtuthuko", "CrewAI", "GenerativeAI"],
-                    "categoryId": "1" # 1 is Film & Animation
-                },
-                "status": {"privacyStatus": "public"}
-            }
-            
+            request_body = { "snippet": { "title": title, "description": description, "tags": ["AI", "Anime", "CrewAI"], "categoryId": "1" }, "status": { "privacyStatus": "public" } }
             media = MediaFileUpload(file_path, chunksize=-1, resumable=True)
-            
             print("Uploading to YouTube...")
-            request = youtube.videos().insert(
-                part=",".join(request_body.keys()),
-                body=request_body,
-                media_body=media
-            )
-            
+            request = youtube.videos().insert(part=",".join(request_body.keys()), body=request_body, media_body=media)
             response = request.execute()
-            video_id = response.get("id")
-            
-            return f"Successfully uploaded video to YouTube. Video ID: {video_id}"
-
+            return f"Successfully uploaded video. Video ID: {response.get('id')}"
         except Exception as e:
             return f"An error occurred during YouTube upload: {e}"

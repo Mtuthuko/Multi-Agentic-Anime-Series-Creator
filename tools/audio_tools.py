@@ -1,98 +1,81 @@
 # tools/audio_tools.py
 import os
+import json
+import replicate
 import requests
 from elevenlabs.client import ElevenLabs
 from google.cloud import texttospeech
 from crewai.tools import BaseTool
-from pydantic import BaseModel, Field
-from gradio_client import Client
+from pydantic import BaseModel, Field, PrivateAttr
+from typing import Any
 
-# --- SCHEMA AND TOOL FOR VOICE GENERATOR ---
+# --- VOICE GENERATOR (CORRECTED) ---
 class VoiceGeneratorToolSchema(BaseModel):
     """Input schema for VoiceGeneratorTool."""
-    dialogue: str = Field(..., description="The exact line of dialogue to be converted to speech.")
+    dialogue: str = Field(..., description="The dialogue text to be converted to speech.")
     file_path: str = Field(..., description="The local path to save the generated audio file.")
 
 class VoiceGeneratorTool(BaseTool):
     name: str = "Character Voice Generator"
-    description: str = "Generates a real audio file for a character's dialogue using a Text-to-Speech API."
-    args_schema: type[BaseModel] = VoiceGeneratorToolSchema
-    tts_client: texttospeech.TextToSpeechClient = None
+    description: str = "Generates a real audio file for dialogue using Google Cloud TTS."
+    args_schema: type[BaseModel] = VoiceGeneratorToolSchema # 2. Assign the new schema
+    _tts_client: Any = PrivateAttr()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.tts_client = texttospeech.TextToSpeechClient()
+        self._tts_client = texttospeech.TextToSpeechClient()
 
+    # 3. Update _run to accept named arguments, not a JSON string
     def _run(self, dialogue: str, file_path: str) -> str:
-        print(f"🔊 Generating REAL voice for dialogue: '{dialogue}'")
+        print(f"🔊 Generating voice for: '{dialogue}'")
         try:
             synthesis_input = texttospeech.SynthesisInput(text=dialogue)
             voice = texttospeech.VoiceSelectionParams(language_code="en-US", name="en-US-Wavenet-F")
             audio_config = texttospeech.AudioConfig(audio_encoding=texttospeech.AudioEncoding.MP3)
-            response = self.tts_client.synthesize_speech(input=synthesis_input, voice=voice, audio_config=audio_config)
-            os.makedirs(os.path.dirname(file_path), exist_ok=True)
-            with open(file_path, "wb") as out:
-                out.write(response.audio_content)
-            return f"Successfully created real audio voice file at {file_path}"
+            response = self._tts_client.synthesize_speech(input=synthesis_input, voice=voice, audio_config=audio_config)
+            with open(file_path, "wb") as out: out.write(response.audio_content)
+            return f"Successfully created voice file at {file_path}"
         except Exception as e:
-            return f"An error occurred during Text-to-Speech generation: {e}"
-
-
-# --- SCHEMA AND TOOL FOR SFX GENERATOR ---
+            return f"Error generating voice: {e}"
+# --- SFX GENERATOR (CORRECTED) ---
 class SfxGeneratorToolSchema(BaseModel):
-    """Input schema for SfxGeneratorTool."""
-    prompt: str = Field(..., description="A description of the sound effect, e.g., 'a door creaking open'.")
-    file_path: str = Field(..., description="The local path to save the generated SFX audio file.")
+    prompt: str = Field(..., description="A description of the sound effect.")
+    file_path: str = Field(..., description="The local path to save the SFX file.")
 
 class SfxGeneratorTool(BaseTool):
     name: str = "Sound Effect (SFX) Generator"
-    description: str = "Generates a sound effect based on a text description using the ElevenLabs API."
+    description: str = "Generates a sound effect from a text description via ElevenLabs."
     args_schema: type[BaseModel] = SfxGeneratorToolSchema
-    eleven_client: ElevenLabs = None
+    _eleven_client: Any = PrivateAttr() # Define as private attribute
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        api_key = os.getenv("ELEVEN_LABS_API_KEY")
-        if not api_key:
-            raise ValueError("ELEVEN_LABS_API_KEY not found in environment variables.")
-        self.eleven_client = ElevenLabs(api_key=api_key)
+        self._eleven_client = ElevenLabs(api_key=os.getenv("ELEVEN_LABS_API_KEY"))
 
     def _run(self, prompt: str, file_path: str) -> str:
-        print(f"🔊 Generating SFX with prompt: '{prompt}'")
+        print(f"🔊 Generating SFX: '{prompt}'")
         try:
-            audio_bytes_iterator = self.eleven_client.sounds.generate_from_text(text=prompt)
-            os.makedirs(os.path.dirname(file_path), exist_ok=True)
-            with open(file_path, "wb") as f:
-                for chunk in audio_bytes_iterator:
-                    f.write(chunk)
-            return f"Successfully generated SFX and saved to {file_path}"
-        except Exception as e:
-            return f"Error generating SFX: {e}"
+            audio = self._eleven_client.text_to_sound_effects.create(text=prompt)
+            with open(file_path, "wb") as f: f.write(audio)
+            return f"Successfully generated SFX to {file_path}"
+        except Exception as e: return f"Error generating SFX: {e}"
 
-
-# --- SCHEMA AND TOOL FOR MUSIC GENERATOR ---
+# --- MUSIC GENERATOR (No changes needed as it had no internal state) ---
 class MusicGeneratorToolSchema(BaseModel):
-    """Input schema for MusicGeneratorTool."""
-    prompt: str = Field(..., description="A prompt describing the music's mood, e.g., 'sad, melancholic, lofi hip hop'.")
-    file_path: str = Field(..., description="The local path to save the generated music file.")
+    prompt: str = Field(..., description="A prompt describing the music's mood.")
+    file_path: str = Field(..., description="The local path to save the music file.")
 
 class MusicGeneratorTool(BaseTool):
     name: str = "Background Music Generator"
-    description: str = "Generates a short background music track based on a descriptive prompt using a Hugging Face Space."
+    description: str = "Generates background music from a prompt via Replicate."
     args_schema: type[BaseModel] = MusicGeneratorToolSchema
     
     def _run(self, prompt: str, file_path: str) -> str:
-        print(f"🎵 Generating Music via Gradio Client: '{prompt}'")
+        print(f"🎵 Generating Music: '{prompt}'")
         try:
-            client = Client("fffiloni/riffusion-app")
-            result = client.predict(
-                prompt_a=prompt,
-                api_name="/predict"
-            )
-            generated_audio_path = result['audio']
-            os.makedirs(os.path.dirname(file_path), exist_ok=True)
-            with open(generated_audio_path, 'rb') as f_in, open(file_path, 'wb') as f_out:
-                f_out.write(f_in.read())
-            return f"Successfully generated music and saved to {file_path}"
-        except Exception as e:
-            return f"An unexpected error occurred during music generation: {e}"
+            output_url = replicate.run("riffusion/riffusion:8cf61ea6c56afd61d8f5b9ffd14d7c216c0a93844ce2d82ac1c9ecc9c7f24e05", input={"prompt_a": prompt})
+            response = requests.get(output_url['audio'])
+            response.raise_for_status()
+            with open(file_path, 'wb') as f: f.write(response.content)
+            return f"Successfully generated music to {file_path}"
+        except Exception as e: return f"Error during music generation: {e}"
