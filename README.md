@@ -82,7 +82,7 @@ graph TD
 ### 🛠️ The AI Stack
 
 - **Framework**: `crewAI`
-- **LLM**: Google `Gemini 1.5 Flash` (for agent reasoning)
+- **LLM**: Google `Gemini 2.0 Flash 001` (for agent reasoning)
 - **Image Generation**: `digiplay/AbsoluteReality_v1.8.1` via Hugging Face API
 - **Video Generation**: `stabilityai/stable-video-diffusion-img2vid-xt` via Hugging Face API
 - **Voice Generation**: Google Cloud Text-to-Speech API
