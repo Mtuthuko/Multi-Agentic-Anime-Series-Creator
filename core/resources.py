@@ -8,8 +8,9 @@ import os
 from langchain_google_genai import ChatGoogleGenerativeAI
 
 # Import all tools
-from tools.memory_tool import MemoryTool
-from tools.local_image_tool import LocalImageGeneratorTool
+from tools.memory_tool import MemoryReaderTool, MemoryWriterTool
+# from tools.local_image_tool import LocalImageGeneratorTool
+from tools.huggingface_tools import HuggingFaceImageGeneratorTool, HuggingFaceVideoGeneratorTool
 from tools.audio_tools import VoiceGeneratorTool, SfxGeneratorTool, MusicGeneratorTool
 from tools.post_production_tools import FaceAnimationTool
 from tools.compiler_tool import VideoCompilerTool
@@ -26,12 +27,16 @@ llm = ChatVertexAI(
 # Note: LocalImageGeneratorTool will download models on first run.
 print("Initializing tools...")
 memory_manager = MemoryManager(collection_name="mtuthuko_series_memory")
-memory_tool = MemoryTool(memory_manager=memory_manager)
-local_image_tool = LocalImageGeneratorTool()
+# memory_tool = MemoryTool(memory_manager=memory_manager)
+memory_reader_tool = MemoryReaderTool(memory_manager=memory_manager) # <-- Name changed
+memory_writer_tool = MemoryWriterTool(memory_manager=memory_manager)
+# local_image_tool = LocalImageGeneratorTool()
+hf_image_tool = HuggingFaceImageGeneratorTool()
+hf_video_tool = HuggingFaceVideoGeneratorTool()
 voice_tool = VoiceGeneratorTool()
 sfx_tool = SfxGeneratorTool()
 music_tool = MusicGeneratorTool()
-local_lip_sync_tool = FaceAnimationTool()
+# local_lip_sync_tool = FaceAnimationTool()
 compiler_tool = VideoCompilerTool()
 youtube_tool = YouTubeUploaderTool()
 print("All tools initialized.")

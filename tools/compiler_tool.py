@@ -2,7 +2,8 @@
 from crewai.tools import BaseTool
 from pydantic import BaseModel, Field
 from moviepy.editor import (VideoFileClip, AudioFileClip, ImageClip, 
-                            CompositeVideoClip, concatenate_audioclips)
+                            CompositeVideoClip, concatenate_audioclips, ColorClip)
+from moviepy.audio.AudioClip import CompositeAudioClip
 import os
 
 # Define the explicit schema class

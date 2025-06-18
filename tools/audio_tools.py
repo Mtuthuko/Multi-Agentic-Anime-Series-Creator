@@ -14,6 +14,7 @@ class VoiceGeneratorToolSchema(BaseModel):
     """Input schema for VoiceGeneratorTool."""
     dialogue: str = Field(..., description="The dialogue text to be converted to speech.")
     file_path: str = Field(..., description="The local path to save the generated audio file.")
+    
 
 class VoiceGeneratorTool(BaseTool):
     name: str = "Character Voice Generator"
@@ -23,20 +24,25 @@ class VoiceGeneratorTool(BaseTool):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self._tts_client = texttospeech.TextToSpeechClient()
+        self._eleven_client = ElevenLabs(api_key=os.getenv("ELEVEN_LABS_API_KEY"))
 
-    # 3. Update _run to accept named arguments, not a JSON string
     def _run(self, dialogue: str, file_path: str) -> str:
-        print(f"🔊 Generating voice for: '{dialogue}'")
+        print(f"🔊 Generating sound: '{dialogue}'")
         try:
-            synthesis_input = texttospeech.SynthesisInput(text=dialogue)
-            voice = texttospeech.VoiceSelectionParams(language_code="en-US", name="en-US-Wavenet-F")
-            audio_config = texttospeech.AudioConfig(audio_encoding=texttospeech.AudioEncoding.MP3)
-            response = self._tts_client.synthesize_speech(input=synthesis_input, voice=voice, audio_config=audio_config)
-            with open(file_path, "wb") as out: out.write(response.audio_content)
-            return f"Successfully created voice file at {file_path}"
-        except Exception as e:
-            return f"Error generating voice: {e}"
+            # CORRECTED METHOD CALL
+            # The client object itself is callable for SFX generation.
+            audio = self._eleven_client.generate(
+                text=dialogue,
+                model="eleven_multilingual_v2" # Using a standard model
+            )
+            # The official way to save is to iterate and write chunks.
+            with open(file_path, "wb") as f:
+                for chunk in audio:
+                    if chunk:
+                        f.write(chunk)
+            
+            return f"Successfully generated SFX to {file_path}"
+        except Exception as e: return f"Error generating SFX: {e}"
 # --- SFX GENERATOR (CORRECTED) ---
 class SfxGeneratorToolSchema(BaseModel):
     prompt: str = Field(..., description="A description of the sound effect.")

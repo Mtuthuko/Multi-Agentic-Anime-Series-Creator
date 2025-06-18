@@ -1,8 +1,8 @@
 # agents/production_crew_agents.py
 from crewai import Agent
 from pydantic import BaseModel, Field
-from core.resources import (llm, local_image_tool, voice_tool, sfx_tool, music_tool, 
-                             local_lip_sync_tool, FaceAnimationTool, compiler_tool)
+from core.resources import (llm, hf_image_tool, hf_video_tool, voice_tool, sfx_tool, music_tool, 
+                              compiler_tool)
 
 production_planner = Agent(
     role='Producer and Production Planner',
@@ -12,11 +12,20 @@ production_planner = Agent(
     verbose=True
 )
 
-image_artist = Agent(
-    role='Local AI Concept Artist',
-    goal='Generate all visual assets (character portraits, backgrounds) using a local Text-to-Image model, based on the production plan.',
-    backstory='You are a master of local AI image generation. You take prompts from a production plan and bring the world to life on this machine.',
-    tools=[local_image_tool],
+# image_artist = Agent(
+#     role='Local AI Concept Artist',
+#     goal='Generate all visual assets (character portraits, backgrounds) using a local Text-to-Image model, based on the production plan.',
+#     backstory='You are a master of local AI image generation. You take prompts from a production plan and bring the world to life on this machine.',
+#     tools=[local_image_tool],
+#     llm=llm,
+#     verbose=True
+# )
+
+video_director = Agent(
+    role='AI Video Director',
+    goal='Create all visual video clips using Hugging Face APIs. This is a two-step process: first generate a starting image, then generate a video from that image.',
+    backstory='You are a master of remote AI APIs. You direct the visual creation process, ensuring each scene starts with a perfect frame and is then brought to life as a video clip using Hugging Face.',
+    tools=[hf_image_tool, hf_video_tool], # <-- THIS AGENT NOW HAS THE HF TOOLS
     llm=llm,
     verbose=True
 )
@@ -36,7 +45,7 @@ face_animator = Agent( # Renamed from lip_sync_animator
     role='Face Animation Specialist',
     goal='Create "talking" video clips by animating between a character\'s neutral and open-mouth portraits, timed to their dialogue audio.',
     backstory='You bring characters to life. Using simple but effective animation techniques, you create the illusion of speech, ready for the final edit.',
-    tools=[FaceAnimationTool()], # <-- Give it the new, real tool
+    tools=[hf_video_tool], # <-- Give it the new, real tool
     llm=llm,
     verbose=True
 )

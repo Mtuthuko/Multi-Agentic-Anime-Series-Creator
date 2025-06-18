@@ -10,11 +10,11 @@ load_dotenv()
 
 from agents.story_agents import storyline_agent, script_writer_agent
 from agents.production_crew_agents import (
-    production_planner, image_artist, audio_engineer, face_animator, editor
+    production_planner, video_director, audio_engineer, editor, video_director
 )
 from tasks.episode_tasks import create_crew_tasks
 from utils.file_handler import setup_episode_directory
-from core.resources import youtube_tool, memory_tool, llm
+from core.resources import youtube_tool, memory_writer_tool, llm
 
 # --- State Management ---
 STATE_FILE = "series_state.txt"
@@ -42,7 +42,7 @@ def run_episode_creation_job():
         role='Digital Distribution Manager',
         goal='Upload the final anime episode to YouTube and update the series memory.',
         backstory='You handle the final step of bringing the series to the world and ensuring the system remembers its creation.',
-        tools=[youtube_tool, memory_tool],
+        tools=[youtube_tool, memory_writer_tool],
         llm=llm,
         verbose=True
     )
@@ -52,7 +52,7 @@ def run_episode_creation_job():
     anime_crew = Crew(
         agents=[
             storyline_agent, script_writer_agent, production_planner,
-            image_artist, audio_engineer, face_animator, editor, youtube_agent
+             audio_engineer, video_director, editor, youtube_agent
         ],
         tasks=tasks,
         process=Process.sequential,
