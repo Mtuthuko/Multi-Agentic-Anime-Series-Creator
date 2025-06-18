@@ -15,6 +15,19 @@ This system is built using a **free-tier-friendly, API-based architecture**. It 
 - **Text-to-Video Workflow**: Implements a sophisticated Image-to-Video pipeline using Stable Video Diffusion for dynamic scenes.
 - **Automated Distribution**: A dedicated agent handles the final upload to a specified YouTube channel.
 
+## 🛠️ Tech Stack & Tools
+
+![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![CrewAI](https://img.shields.io/badge/CrewAI-%231DA1F2.svg?style=for-the-badge)
+![Google Gemini](https://img.shields.io/badge/Google-Gemini-4285F4?style=for-the-badge)
+![Hugging Face](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Inference%20API-yellow?style=for-the-badge)
+![Google Cloud](https://img.shields.io/badge/Google_Cloud-4285F4?style=for-the-badge&logo=google-cloud&logoColor=white)
+![ElevenLabs](https://img.shields.io/badge/ElevenLabs-1D1D1D?style=for-the-badge&logo=elevenlabs&logoColor=white)
+![YouTube](https://img.shields.io/badge/YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white)
+![ChromaDB](https://img.shields.io/badge/ChromaDB-6A0DAD?style=for-the-badge)
+![MoviePy](https://img.shields.io/badge/MoviePy-000000?style=for-the-badge)
+
+
 ##  workflow
 
 The system operates like a digital production studio, with each agent passing its work to the next in a sequential pipeline.
